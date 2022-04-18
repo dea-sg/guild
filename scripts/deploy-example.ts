@@ -2,13 +2,13 @@ import { ethers } from 'hardhat'
 import {
 	Admin__factory,
 	UpgradeableProxy__factory,
-	ExampleToken__factory,
+	GuildToken__factory,
 } from '../typechain'
 
 async function main() {
 	const exampleFactory = (await ethers.getContractFactory(
-		'ExampleToken'
-	)) as ExampleToken__factory
+		'GuildToken'
+	)) as GuildToken__factory
 	const example = await exampleFactory.deploy()
 
 	const adminFactory = (await ethers.getContractFactory(

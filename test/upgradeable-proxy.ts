@@ -2,20 +2,20 @@ import { expect, use } from 'chai'
 import { ethers } from 'hardhat'
 import { solidity } from 'ethereum-waffle'
 import { deploy, deployProxy } from './utils'
-import { ExampleToken, UpgradeableProxy } from '../typechain'
+import { GuildToken, UpgradeableProxy } from '../typechain'
 
 use(solidity)
 
 describe('UpgradeableProxy', () => {
 	const init = async (): Promise<
-		[UpgradeableProxy, ExampleToken, ExampleToken]
+		[UpgradeableProxy, GuildToken, GuildToken]
 	> => {
 		const data = ethers.utils.arrayify('0x')
-		const exampleToken = await deploy<ExampleToken>('ExampleToken')
+		const exampleToken = await deploy<GuildToken>('GuildToken')
 		const [owner, addr1] = await ethers.getSigners()
 		const proxy = await deployProxy(exampleToken.address, owner.address, data)
 		const proxified = exampleToken.attach(proxy.address).connect(addr1)
-		await proxified.initialize()
+		await proxified.initialize('token', 'TOKEN')
 		return [proxy, exampleToken, proxified]
 	}
 
@@ -24,7 +24,7 @@ describe('UpgradeableProxy', () => {
 			it('upgrade logic contract', async () => {
 				const [proxy, impl] = await init()
 				const impl1 = await proxy.callStatic.implementation()
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				await proxy.upgradeTo(nextImpl.address)
 				const impl2 = await proxy.callStatic.implementation()
 				expect(impl1).to.not.equal(impl2)
@@ -34,7 +34,7 @@ describe('UpgradeableProxy', () => {
 
 			it('storing data', async () => {
 				const [proxy, , proxified] = await init()
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				await proxy.upgradeTo(nextImpl.address)
 				const name = await proxified.name()
 				expect(name).to.equal('token')
@@ -43,7 +43,7 @@ describe('UpgradeableProxy', () => {
 		describe('fail', () => {
 			it('should fail to upgrade when the caller is not admin', async () => {
 				const [proxy, impl] = await init()
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				const [, addr1] = await ethers.getSigners()
 				const res = await proxy
 					.connect(addr1)

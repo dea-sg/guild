@@ -3,22 +3,22 @@ import { ethers } from 'hardhat'
 import { constants } from 'ethers'
 import { solidity } from 'ethereum-waffle'
 import { deploy, deployProxy } from './utils'
-import { ExampleToken, Admin, UpgradeableProxy } from '../typechain'
+import { GuildToken, Admin, UpgradeableProxy } from '../typechain'
 
 use(solidity)
 
 describe('Admin', () => {
 	const init = async (): Promise<
-		[UpgradeableProxy, ExampleToken, ExampleToken, Admin]
+		[UpgradeableProxy, GuildToken, GuildToken, Admin]
 	> => {
 		const data = ethers.utils.arrayify('0x')
-		const exampleToken = await deploy<ExampleToken>('ExampleToken')
+		const guildToken = await deploy<GuildToken>('GuildToken')
 		const admin = await deploy<Admin>('Admin')
-		const proxy = await deployProxy(exampleToken.address, admin.address, data)
-		const proxified = exampleToken.attach(proxy.address)
-		await proxified.initialize()
+		const proxy = await deployProxy(guildToken.address, admin.address, data)
+		const proxified = guildToken.attach(proxy.address)
+		await proxified.initialize('token', 'TOKEN')
 
-		return [proxy, exampleToken, proxified, admin]
+		return [proxy, guildToken, proxified, admin]
 	}
 
 	describe('upgrade', () => {
@@ -26,7 +26,7 @@ describe('Admin', () => {
 			it('upgrade logic contract', async () => {
 				const [proxy, impl, , proxyAdmin] = await init()
 				const impl1 = await proxyAdmin.getProxyImplementation(proxy.address)
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				await proxyAdmin.upgrade(proxy.address, nextImpl.address)
 				const impl2 = await proxyAdmin.getProxyImplementation(proxy.address)
 				expect(impl1).to.not.equal(impl2)
@@ -37,7 +37,7 @@ describe('Admin', () => {
 		describe('fail', () => {
 			it('should fail to upgrade when the caller is not admin', async () => {
 				const [proxy, , , proxyAdmin] = await init()
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				const [, addr1] = await ethers.getSigners()
 				await expect(
 					proxyAdmin.connect(addr1).upgrade(proxy.address, nextImpl.address)
