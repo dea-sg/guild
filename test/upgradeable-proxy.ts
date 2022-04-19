@@ -1,57 +1,66 @@
 import { expect, use } from 'chai'
 import { ethers } from 'hardhat'
 import { solidity } from 'ethereum-waffle'
-import { deploy, deployProxy } from './utils'
-import { GuildToken, UpgradeableProxy } from '../typechain'
+import { deploy, deployProxy, makeSnapshot, resetChain } from './utils'
+import { Admin, GuildToken, UpgradeableProxy } from '../typechain-types'
 
 use(solidity)
 
 describe('UpgradeableProxy', () => {
-	const init = async (): Promise<
-		[UpgradeableProxy, GuildToken, GuildToken]
-	> => {
+	let proxy: UpgradeableProxy
+	let admin: Admin
+	let exampleToken: GuildToken
+	let proxified: GuildToken
+	let snapshot: string
+
+	before(async () => {
 		const data = ethers.utils.arrayify('0x')
-		const exampleToken = await deploy<GuildToken>('GuildToken')
-		const [owner, addr1] = await ethers.getSigners()
-		const proxy = await deployProxy(exampleToken.address, owner.address, data)
-		const proxified = exampleToken.attach(proxy.address).connect(addr1)
-		await proxified.initialize('token', 'TOKEN')
-		return [proxy, exampleToken, proxified]
-	}
+		exampleToken = await deploy<GuildToken>('GuildToken')
+		admin = await deploy<Admin>('Admin')
+		const [owner] = await ethers.getSigners()
+		proxy = await deployProxy(exampleToken.address, admin.address, data)
+		proxified = exampleToken.attach(proxy.address).connect(owner)
+		const [, endPoint] = await ethers.getSigners()
+		await proxified.initialize('token', 'TOKEN', endPoint.address)
+	})
+	beforeEach(async () => {
+		snapshot = await makeSnapshot()
+	})
+	afterEach(async () => {
+		await resetChain(snapshot)
+	})
 
 	describe('upgradeTo', () => {
 		describe('success', () => {
 			it('upgrade logic contract', async () => {
-				const [proxy, impl] = await init()
-				const impl1 = await proxy.callStatic.implementation()
+				const impl1 = await admin.getProxyImplementation(proxy.address)
 				const nextImpl = await deploy<GuildToken>('GuildToken')
-				await proxy.upgradeTo(nextImpl.address)
-				const impl2 = await proxy.callStatic.implementation()
+				await admin.upgrade(proxy.address, nextImpl.address)
+				const impl2 = await admin.getProxyImplementation(proxy.address)
 				expect(impl1).to.not.equal(impl2)
-				expect(impl1).to.equal(impl.address)
+				expect(impl1).to.equal(exampleToken.address)
 				expect(impl2).to.equal(nextImpl.address)
 			})
 
 			it('storing data', async () => {
-				const [proxy, , proxified] = await init()
 				const nextImpl = await deploy<GuildToken>('GuildToken')
-				await proxy.upgradeTo(nextImpl.address)
+				await admin.upgrade(proxy.address, nextImpl.address)
 				const name = await proxified.name()
 				expect(name).to.equal('token')
 			})
 		})
 		describe('fail', () => {
 			it('should fail to upgrade when the caller is not admin', async () => {
-				const [proxy, impl] = await init()
 				const nextImpl = await deploy<GuildToken>('GuildToken')
 				const [, addr1] = await ethers.getSigners()
-				const res = await proxy
+				const res = await admin
 					.connect(addr1)
-					.upgradeTo(nextImpl.address)
+					.upgrade(proxy.address, nextImpl.address)
+					// eslint-disable-next-line max-nested-callbacks
 					.catch((err: Error) => err)
-				const impl1 = await proxy.callStatic.implementation()
+				const impl1 = await admin.getProxyImplementation(proxy.address)
 				expect(res).to.be.instanceOf(Error)
-				expect(impl1).to.be.equal(impl.address)
+				expect(impl1).to.be.equal(exampleToken.address)
 			})
 		})
 	})

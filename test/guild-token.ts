@@ -2,37 +2,48 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Signer } from 'ethers'
-import { deploy, deployProxy } from './utils'
-import { Admin, GuildToken } from '../typechain'
-import { ethers } from 'hardhat'
+import { deploy, deployProxy, makeSnapshot, resetChain } from './utils'
+import { Admin, GuildToken } from '../typechain-types'
+import { ethers, waffle } from 'hardhat'
+import { abi } from '../artifacts/contracts/interfaces/ILayerZeroEndpoint.sol/ILayerZeroEndpoint.json'
+const { deployMockContract } = waffle
 
 use(solidity)
 
-describe('Jpyw', () => {
+describe('GuildToken', () => {
 	let deployer: Signer
 	let user: Signer
 	let user2: Signer
 	let guildToken: GuildToken
 	let guildTokenUser: GuildToken
 	let guildTokenUser2: GuildToken
+	let snapshot: string
 
-	beforeEach(async () => {
+	before(async () => {
 		;[deployer, user, user2] = await ethers.getSigners()
 		const admin = await deploy<Admin>('Admin')
-		const jpywInstance = await deploy<GuildToken>('GuildToken')
+		const tpkenInstance = await deploy<GuildToken>('GuildToken')
 		const proxy = await deployProxy(
-			jpywInstance.address,
+			tpkenInstance.address,
 			admin.address,
 			ethers.utils.arrayify('0x')
 		)
-		guildToken = jpywInstance.attach(proxy.address)
+		guildToken = tpkenInstance.attach(proxy.address)
 		guildTokenUser = guildToken.connect(user)
 		guildTokenUser2 = guildToken.connect(user2)
-		await guildToken.initialize('token', 'TOKEN')
+		const mockEndPoint = await deployMockContract(deployer, abi)
+
+		await guildToken.initialize('token', 'TOKEN', mockEndPoint.address)
+	})
+	beforeEach(async () => {
+		snapshot = await makeSnapshot()
+	})
+	afterEach(async () => {
+		await resetChain(snapshot)
 	})
 
 	describe('name', () => {
-		it('name is JPY World', async () => {
+		it('name is ', async () => {
 			const tmp = await guildToken.name()
 			expect(tmp).to.equal('token')
 		})
@@ -130,9 +141,7 @@ describe('Jpyw', () => {
 		describe('fail', () => {
 			it('no have role', async () => {
 				const userAddress = await user.getAddress()
-				await expect(
-					guildTokenUser.mint(userAddress, 10000)
-				).to.be.revertedWith('illegal access(mint)')
+				await expect(guildTokenUser.mint(userAddress, 10000)).to.be.reverted
 			})
 		})
 	})
@@ -152,9 +161,7 @@ describe('Jpyw', () => {
 		describe('fail', () => {
 			it('no have role', async () => {
 				const userAddress = await user.getAddress()
-				await expect(
-					guildTokenUser.burn(userAddress, 10000)
-				).to.be.revertedWith('illegal access(burn)')
+				await expect(guildTokenUser.burn(userAddress, 10000)).to.be.reverted
 			})
 		})
 	})
@@ -209,9 +216,7 @@ describe('Jpyw', () => {
 		describe('fail', () => {
 			it('no have role', async () => {
 				const userAddress = await user.getAddress()
-				await expect(
-					guildTokenUser.addToBlockList(userAddress)
-				).to.be.revertedWith('illegal access(block list)')
+				await expect(guildTokenUser.addToBlockList(userAddress)).to.be.reverted
 			})
 		})
 	})
@@ -231,9 +236,8 @@ describe('Jpyw', () => {
 		describe('fail', () => {
 			it('no have role', async () => {
 				const userAddress = await user.getAddress()
-				await expect(
-					guildTokenUser.removeFromBlockList(userAddress)
-				).to.be.revertedWith('illegal access(block list)')
+				await expect(guildTokenUser.removeFromBlockList(userAddress)).to.be
+					.reverted
 			})
 		})
 	})

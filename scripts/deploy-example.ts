@@ -3,7 +3,7 @@ import {
 	Admin__factory,
 	UpgradeableProxy__factory,
 	GuildToken__factory,
-} from '../typechain'
+} from '../typechain-types'
 
 async function main() {
 	const exampleFactory = (await ethers.getContractFactory(
@@ -38,3 +38,8 @@ main()
 		console.error(error)
 		process.exit(1)
 	})
+
+// やること
+// テストケース
+// ソースざっと確認不要な拡張子とか
+// おすすめ実装確認

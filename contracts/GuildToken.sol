@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MPL-2.0
 pragma solidity =0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import "./layerzero/OmniERC20Upgradeable.sol";
+import "./interfaces/IGuildToken.sol";
 
-contract GuildToken is ERC20Upgradeable, AccessControlEnumerableUpgradeable {
+contract GuildToken is OmniERC20Upgradeable, IGuildToken {
 	bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 	bytes32 public constant BLOCK_LIST_ROLE = keccak256("BLOCK_LIST_ROLE");
@@ -14,41 +14,42 @@ contract GuildToken is ERC20Upgradeable, AccessControlEnumerableUpgradeable {
 
 	using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-	function initialize(string memory _name, string memory _symbol)
-		public
-		initializer
-	{
-		__ERC20_init(_name, _symbol);
-		__AccessControlEnumerable_init();
-		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+	function initialize(
+		string memory _name,
+		string memory _symbol,
+		address _endpoint
+	) public initializer {
+		__OmniERC20_init(_name, _symbol, _endpoint);
 		_setupRole(BURNER_ROLE, _msgSender());
 		_setupRole(MINTER_ROLE, _msgSender());
 		_setupRole(BLOCK_LIST_ROLE, _msgSender());
 	}
 
-	function mint(address _account, uint256 _amount) external {
-		require(hasRole(MINTER_ROLE, _msgSender()), "illegal access(mint)");
+	function mint(address _account, uint256 _amount)
+		external
+		onlyRole(MINTER_ROLE)
+	{
 		_mint(_account, _amount);
 	}
 
-	function burn(address _account, uint256 _amount) external {
-		require(hasRole(BURNER_ROLE, _msgSender()), "illegal access(burn)");
+	function burn(address _account, uint256 _amount)
+		external
+		onlyRole(BURNER_ROLE)
+	{
 		_burn(_account, _amount);
 	}
 
-	function addToBlockList(address _account) external {
-		require(
-			hasRole(BLOCK_LIST_ROLE, _msgSender()),
-			"illegal access(block list)"
-		);
+	function addToBlockList(address _account)
+		external
+		onlyRole(BLOCK_LIST_ROLE)
+	{
 		blockList.add(_account);
 	}
 
-	function removeFromBlockList(address _account) external {
-		require(
-			hasRole(BLOCK_LIST_ROLE, _msgSender()),
-			"illegal access(block list)"
-		);
+	function removeFromBlockList(address _account)
+		external
+		onlyRole(BLOCK_LIST_ROLE)
+	{
 		blockList.remove(_account);
 	}
 
