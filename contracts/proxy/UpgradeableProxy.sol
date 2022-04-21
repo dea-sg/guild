@@ -6,7 +6,7 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
 contract UpgradeableProxy is TransparentUpgradeableProxy {
 	constructor(
 		address _logic,
-		address admin_,
+		address _admin,
 		bytes memory _data
-	) TransparentUpgradeableProxy(_logic, admin_, _data) {}
+	) TransparentUpgradeableProxy(_logic, _admin, _data) {}
 }

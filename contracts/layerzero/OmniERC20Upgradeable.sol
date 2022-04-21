@@ -37,7 +37,7 @@ contract OmniERC20Upgradeable is
 		address payable _refundAddress,
 		address _zroPaymentAddress,
 		bytes calldata _adapterParam
-	) public payable virtual override {
+	) external payable virtual override {
 		_send(
 			_msgSender(),
 			_dstChainId,
@@ -57,7 +57,7 @@ contract OmniERC20Upgradeable is
 		address payable _refundAddress,
 		address _zroPaymentAddress,
 		bytes calldata _adapterParam
-	) public payable virtual override {
+	) external payable virtual override {
 		_spendAllowance(_from, _msgSender(), _amount);
 		_send(
 			_from,
@@ -76,7 +76,13 @@ contract OmniERC20Upgradeable is
 		bool _useZro,
 		uint256 _amount,
 		bytes calldata _adapterParams
-	) public view virtual override returns (uint256 nativeFee, uint256 zroFee) {
+	)
+		external
+		view
+		virtual
+		override
+		returns (uint256 nativeFee, uint256 zroFee)
+	{
 		// mock the payload for send()
 		bytes memory payload = abi.encode(_toAddress, _amount);
 		return

@@ -38,12 +38,24 @@ abstract contract NonblockingUpgradeable is
 			)
 		{
 			// do nothing
-		} catch {
-			// error / exception
-			failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
-				_payload
+		} catch Error(string memory _err) {
+			emit MessageFailed(
+				_srcChainId,
+				_srcAddress,
+				_nonce,
+				_payload,
+				_err,
+				""
 			);
-			emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload);
+		} catch (bytes memory _err) {
+			emit MessageFailed(
+				_srcChainId,
+				_srcAddress,
+				_nonce,
+				_payload,
+				"",
+				_err
+			);
 		}
 	}
 
@@ -57,7 +69,7 @@ abstract contract NonblockingUpgradeable is
 		// solhint-disable-next-line reason-string
 		require(
 			_msgSender() == address(this),
-			"LzReceiver: caller must be Bridge."
+			"LzReceiver: caller must be Bridge"
 		);
 		_nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
 	}

@@ -72,7 +72,7 @@ abstract contract LayerZeroBaseUpgradeable is
 		// solhint-disable-next-line reason-string
 		require(
 			trustedRemoteLookup[_dstChainId].length != 0,
-			"LzSend: destination chain is not a trusted source."
+			"LzSend: destination chain is not a trusted source"
 		);
 		// solhint-disable-next-line  check-send-result
 		lzEndpoint.send{value: msg.value}(

@@ -6,7 +6,9 @@ interface INonblocking {
 		uint16 _srcChainId,
 		bytes _srcAddress,
 		uint64 _nonce,
-		bytes _payload
+		bytes _payload,
+		string _errStr,
+		bytes _errBytes
 	);
 
 	function retryMessage(

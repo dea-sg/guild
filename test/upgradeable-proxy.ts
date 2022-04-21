@@ -9,17 +9,17 @@ use(solidity)
 describe('UpgradeableProxy', () => {
 	let proxy: UpgradeableProxy
 	let admin: Admin
-	let exampleToken: GuildToken
+	let token: GuildToken
 	let proxified: GuildToken
 	let snapshot: string
 
 	before(async () => {
 		const data = ethers.utils.arrayify('0x')
-		exampleToken = await deploy<GuildToken>('GuildToken')
+		token = await deploy<GuildToken>('GuildToken')
 		admin = await deploy<Admin>('Admin')
 		const [owner] = await ethers.getSigners()
-		proxy = await deployProxy(exampleToken.address, admin.address, data)
-		proxified = exampleToken.attach(proxy.address).connect(owner)
+		proxy = await deployProxy(token.address, admin.address, data)
+		proxified = token.attach(proxy.address).connect(owner)
 		const [, endPoint] = await ethers.getSigners()
 		await proxified.initialize('token', 'TOKEN', endPoint.address)
 	})
@@ -38,7 +38,7 @@ describe('UpgradeableProxy', () => {
 				await admin.upgrade(proxy.address, nextImpl.address)
 				const impl2 = await admin.getProxyImplementation(proxy.address)
 				expect(impl1).to.not.equal(impl2)
-				expect(impl1).to.equal(exampleToken.address)
+				expect(impl1).to.equal(token.address)
 				expect(impl2).to.equal(nextImpl.address)
 			})
 
@@ -60,7 +60,7 @@ describe('UpgradeableProxy', () => {
 					.catch((err: Error) => err)
 				const impl1 = await admin.getProxyImplementation(proxy.address)
 				expect(res).to.be.instanceOf(Error)
-				expect(impl1).to.be.equal(exampleToken.address)
+				expect(impl1).to.be.equal(token.address)
 			})
 		})
 	})
