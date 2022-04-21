@@ -1,6 +1,10 @@
 import { ethers, network } from 'hardhat'
 import { Contract } from 'ethers'
-import { UpgradeableProxy, UpgradeableProxy__factory } from '../typechain-types'
+import {
+	UpgradeableProxy,
+	UpgradeableProxy__factory,
+	TestUtils,
+} from '../typechain-types'
 
 export const deploy = async <C extends Contract>(name: string): Promise<C> => {
 	const factory = await ethers.getContractFactory(name)
@@ -34,4 +38,14 @@ export const resetChain = async (snapshot: string): Promise<void> => {
 		method: 'evm_revert',
 		params: [snapshot],
 	})
+}
+
+export const makeRoleErrorMessage = async (
+	testUtils: TestUtils,
+	account: string,
+	rore: string
+): Promise<string> => {
+	const address = await testUtils.convertAddressToString(account)
+	const walletRole = await testUtils.convertBytes32ToString(rore)
+	return `AccessControl: account ${address} is missing role ${walletRole}`
 }

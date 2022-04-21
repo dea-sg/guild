@@ -38,8 +38,3 @@ main()
 		console.error(error)
 		process.exit(1)
 	})
-
-// やること
-// テストケース
-// ソースざっと確認不要な拡張子とか
-// おすすめ実装確認

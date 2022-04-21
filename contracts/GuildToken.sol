@@ -18,7 +18,7 @@ contract GuildToken is OmniERC20Upgradeable, IGuildToken {
 		string memory _name,
 		string memory _symbol,
 		address _endpoint
-	) public initializer {
+	) external initializer {
 		__OmniERC20_init(_name, _symbol, _endpoint);
 		_setupRole(BURNER_ROLE, _msgSender());
 		_setupRole(MINTER_ROLE, _msgSender());

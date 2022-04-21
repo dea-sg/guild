@@ -52,7 +52,7 @@ abstract contract NonblockingUpgradeable is
 		bytes memory _srcAddress,
 		uint64 _nonce,
 		bytes memory _payload
-	) external {
+	) public {
 		// only internal transaction
 		// solhint-disable-next-line reason-string
 		require(

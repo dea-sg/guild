@@ -38,6 +38,10 @@ abstract contract LayerZeroBaseUpgradeable is
 			_msgSender() == address(lzEndpoint),
 			"LzReceiver: illegal access"
 		);
+		require(
+			keccak256(_srcAddress) != keccak256(bytes("")),
+			"LzReceiver: illegal address"
+		);
 		// if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
 		// solhint-disable-next-line reason-string
 		require(
