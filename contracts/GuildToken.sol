@@ -6,13 +6,11 @@ import "./layerzero/OmniERC20Upgradeable.sol";
 import "./interfaces/IGuildToken.sol";
 
 contract GuildToken is OmniERC20Upgradeable, IGuildToken {
+	using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 	bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 	bytes32 public constant BLOCK_LIST_ROLE = keccak256("BLOCK_LIST_ROLE");
-
 	EnumerableSetUpgradeable.AddressSet private blockList;
-
-	using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
 	function initialize(
 		string memory _name,

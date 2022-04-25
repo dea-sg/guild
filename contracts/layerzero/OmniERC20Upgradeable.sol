@@ -21,22 +21,13 @@ contract OmniERC20Upgradeable is
 		__Nonblocking_init(_endpoint);
 	}
 
-	/**
-	 * @dev send `_amount` amount of token to (`_dstChainId`, `_toAddress`)
-	 * `_dstChainId` the destination chain identifier
-	 * `_toAddress` can be any size depending on the `dstChainId`.
-	 * `_amount` the quantity of tokens in wei
-	 * `_refundAddress` the address LayerZero refunds if too much message fee is sent
-	 * `_zroPaymentAddress` set to address(0x0) if not paying in ZRO (LayerZero Token)
-	 * `_adapterParams` is a flexible bytes array to indicate messaging adapter services
-	 */
 	function send(
 		uint16 _dstChainId,
 		bytes calldata _toAddress,
 		uint256 _amount,
 		address payable _refundAddress,
 		address _zroPaymentAddress,
-		bytes calldata _adapterParam
+		bytes calldata _adapterParams
 	) external payable virtual override {
 		_send(
 			_msgSender(),
@@ -45,7 +36,7 @@ contract OmniERC20Upgradeable is
 			_amount,
 			_refundAddress,
 			_zroPaymentAddress,
-			_adapterParam
+			_adapterParams
 		);
 	}
 
@@ -56,7 +47,7 @@ contract OmniERC20Upgradeable is
 		uint256 _amount,
 		address payable _refundAddress,
 		address _zroPaymentAddress,
-		bytes calldata _adapterParam
+		bytes calldata _adapterParams
 	) external payable virtual override {
 		_spendAllowance(_from, _msgSender(), _amount);
 		_send(
@@ -66,7 +57,7 @@ contract OmniERC20Upgradeable is
 			_amount,
 			_refundAddress,
 			_zroPaymentAddress,
-			_adapterParam
+			_adapterParams
 		);
 	}
 
@@ -124,7 +115,7 @@ contract OmniERC20Upgradeable is
 		uint256 _amount,
 		address payable _refundAddress,
 		address _zroPaymentAddress,
-		bytes calldata _adapterParam
+		bytes calldata _adapterParams
 	) internal virtual {
 		_debitFrom(_from, _dstChainId, _toAddress, _amount);
 
@@ -134,7 +125,7 @@ contract OmniERC20Upgradeable is
 			payload,
 			_refundAddress,
 			_zroPaymentAddress,
-			_adapterParam
+			_adapterParams
 		);
 
 		uint64 nonce = lzEndpoint.getOutboundNonce(_dstChainId, address(this));

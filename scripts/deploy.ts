@@ -6,10 +6,11 @@ import {
 } from '../typechain-types'
 
 async function main() {
-	const exampleFactory = (await ethers.getContractFactory(
+	const guildTokenFactory = (await ethers.getContractFactory(
 		'GuildToken'
 	)) as GuildToken__factory
-	const example = await exampleFactory.deploy()
+	const guildToken = await guildTokenFactory.deploy()
+	await guildToken.deployed()
 
 	const adminFactory = (await ethers.getContractFactory(
 		'Admin'
@@ -21,13 +22,13 @@ async function main() {
 		'UpgradeableProxy'
 	)) as UpgradeableProxy__factory
 	const upgradeableProxy = await upgradeableProxyFactory.deploy(
-		example.address,
+		guildToken.address,
 		admin.address,
 		ethers.utils.arrayify('0x')
 	)
 	await upgradeableProxy.deployed()
 
-	console.log('Example address:', example.address)
+	console.log('GuildToken address:', guildToken.address)
 	console.log('Admin address:', admin.address)
 	console.log('UpgradeableProxy address:', upgradeableProxy.address)
 }

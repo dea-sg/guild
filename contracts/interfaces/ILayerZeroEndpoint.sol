@@ -3,7 +3,8 @@ pragma solidity =0.8.9;
 
 import "./ILayerZeroUserApplicationConfig.sol";
 
-// いずれ削除される。理由は @layerzerolabs/contracts でいずれinstallされるから なぜか今はエラーになる。
+// It will be removed eventually.
+// npm install @layerzerolabs/contracts
 interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
 	// @notice send a LayerZero message to the specified address at a LayerZero endpoint.
 	// @param _dstChainId - the destination chain identifier
@@ -57,13 +58,13 @@ interface ILayerZeroEndpoint is ILayerZeroUserApplicationConfig {
 	// @param _userApplication - the user app address on this EVM chain
 	// @param _payload - the custom message to send over LayerZero
 	// @param _payInZRO - if false, user app pays the protocol fee in native token
-	// @param _adapterParam - parameters for the adapter service, e.g. send some dust native token to dstChain
+	// @param _adapterParams - parameters for the adapter service, e.g. send some dust native token to dstChain
 	function estimateFees(
 		uint16 _dstChainId,
 		address _userApplication,
 		bytes calldata _payload,
 		bool _payInZRO,
-		bytes calldata _adapterParam
+		bytes calldata _adapterParams
 	) external view returns (uint256 nativeFee, uint256 zroFee);
 
 	// @notice get this Endpoint's immutable source identifier

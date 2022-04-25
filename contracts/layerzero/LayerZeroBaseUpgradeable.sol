@@ -67,13 +67,27 @@ abstract contract LayerZeroBaseUpgradeable is
 		bytes memory _payload,
 		address payable _refundAddress,
 		address _zroPaymentAddress,
-		bytes memory _adapterParam
+		bytes memory _adapterParams
 	) internal {
 		// solhint-disable-next-line reason-string
 		require(
 			trustedRemoteLookup[_dstChainId].length != 0,
 			"LzSend: destination chain is not a trusted source"
 		);
+		// We will respond when the ZERO token is released.
+		(uint256 messageFee, ) = lzEndpoint.estimateFees(
+			_dstChainId,
+			address(this),
+			_payload,
+			false,
+			_adapterParams
+		);
+		// solhint-disable-next-line reason-string
+		require(
+			msg.value >= messageFee,
+			"LzSend: Must send enough value to cover messageFee"
+		);
+		// We will respond when the ZERO token is released.
 		// solhint-disable-next-line  check-send-result
 		lzEndpoint.send{value: msg.value}(
 			_dstChainId,
@@ -81,7 +95,7 @@ abstract contract LayerZeroBaseUpgradeable is
 			_payload,
 			_refundAddress,
 			_zroPaymentAddress,
-			_adapterParam
+			_adapterParams
 		);
 	}
 

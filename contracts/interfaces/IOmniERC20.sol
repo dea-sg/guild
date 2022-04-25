@@ -9,11 +9,12 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 interface IOmniERC20 is IERC20Upgradeable {
 	/**
 	 * @dev send `_amount` amount of token to (`_dstChainId`, `_toAddress`)
-	 * `_toAddress` can be any size depending on the `dstChainId`.
-	 * `_amount` the quantity of tokens in wei
-	 * `_refundAddress` the address LayerZero refunds if too much message fee is sent
-	 * `_zroPaymentAddress` set to address(0x0) if not paying in ZRO (LayerZero Token)
-	 * `_adapterParams` is a flexible bytes array to indicate messaging adapter services
+	 * @param _dstChainId the destination chain identifier
+	 * @param _toAddress can be any size depending on the `dstChainId`.
+	 * @param _amount the quantity of tokens in wei
+	 * @param _refundAddress the address LayerZero refunds if too much message fee is sent
+	 * @param _zroPaymentAddress set to address(0x0) if not paying in ZRO (LayerZero Token)
+	 * @param _adapterParams is a flexible bytes array to indicate messaging adapter services
 	 */
 	function send(
 		uint16 _dstChainId,
@@ -26,12 +27,13 @@ interface IOmniERC20 is IERC20Upgradeable {
 
 	/**
 	 * @dev send `_amount` amount of token to (`_dstChainId`, `_toAddress`) from `_from`
-	 * `_dstChainId` the destination chain identifier
-	 * `_toAddress` can be any size depending on the `dstChainId`.
-	 * `_amount` the quantity of tokens in wei
-	 * `_refundAddress` the address LayerZero refunds if too much message fee is sent
-	 * `_zroPaymentAddress` set to address(0x0) if not paying in ZRO (LayerZero Token)
-	 * `_adapterParams` is a flexible bytes array to indicate messaging adapter services
+	 * @param _from from address
+	 * @param _dstChainId the destination chain identifier
+	 * @param _toAddress can be any size depending on the `dstChainId`.
+	 * @param _amount the quantity of tokens in wei
+	 * @param _refundAddress the address LayerZero refunds if too much message fee is sent
+	 * @param _zroPaymentAddress set to address(0x0) if not paying in ZRO (LayerZero Token)
+	 * @param _adapterParams is a flexible bytes array to indicate messaging adapter services
 	 */
 	function sendFrom(
 		address _from,
@@ -43,13 +45,23 @@ interface IOmniERC20 is IERC20Upgradeable {
 		bytes calldata _adapterParams
 	) external payable;
 
+	/**
+	 * @dev get gas fee
+	 * @return _nativeFee native fee
+	 * @return _zroFee zero fee
+	 * @param _dstChainId the destination chain identifier
+	 * @param _toAddress can be any size depending on the `dstChainId`.
+	 * @param _useZro Set to true if zero token is used.
+	 * @param _amount the quantity of tokens in wei
+	 * @param _adapterParams is a flexible bytes array to indicate messaging adapter services
+	 */
 	function estimateSendFee(
 		uint16 _dstChainId,
 		bytes calldata _toAddress,
 		bool _useZro,
 		uint256 _amount,
 		bytes calldata _adapterParams
-	) external view returns (uint256 nativeFee, uint256 zroFee);
+	) external view returns (uint256 _nativeFee, uint256 _zroFee);
 
 	/**
 	 * @dev Emitted when `_amount` tokens are moved from the `_sender` to (`_dstChainId`, `_toAddress`)

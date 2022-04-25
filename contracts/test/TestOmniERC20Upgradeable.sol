@@ -11,4 +11,20 @@ contract TestOmniERC20Upgradeable is OmniERC20Upgradeable {
 	) external initializer {
 		__OmniERC20_init(_name, _symbol, _endpoint);
 	}
+
+	function mint(address _account, uint256 _amount)
+		external
+		onlyRole(DEFAULT_ADMIN_ROLE)
+	{
+		_mint(_account, _amount);
+	}
+
+	function executeNonblockingLzReceive(
+		uint16 _srcChainId,
+		bytes memory _srcAddress,
+		uint64 _nonce,
+		bytes memory _payload
+	) external {
+		_nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+	}
 }

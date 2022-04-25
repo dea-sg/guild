@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 pragma solidity =0.8.9;
 
-// いずれ削除される。理由は @layerzerolabs/contracts でいずれinstallされるから なぜか今はエラーになる。
+// It will be removed eventually.
+// npm install @layerzerolabs/contracts
 interface ILayerZeroUserApplicationConfig {
 	// @notice set the configuration of the LayerZero messaging library of the specified version
 	// @param _version - messaging library version

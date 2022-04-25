@@ -23,4 +23,20 @@ contract TestLayerZeroBaseUpgradeable is LayerZeroBaseUpgradeable {
 	) internal virtual override {
 		emit Executed(_srcChainId, _srcAddress, _nonce, _payload);
 	}
+
+	function lzSend(
+		uint16 _dstChainId,
+		bytes memory _payload,
+		address payable _refundAddress,
+		address _zroPaymentAddress,
+		bytes memory _adapterParams
+	) external payable {
+		_lzSend(
+			_dstChainId,
+			_payload,
+			_refundAddress,
+			_zroPaymentAddress,
+			_adapterParams
+		);
+	}
 }

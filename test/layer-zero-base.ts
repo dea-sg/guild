@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 import { expect, use } from 'chai'
 import { ethers, waffle } from 'hardhat'
@@ -40,6 +41,59 @@ describe('LayerZeroBaseUpgradeable', () => {
 	})
 	afterEach(async () => {
 		await resetChain(snapshot)
+	})
+
+	describe('lzSend', () => {
+		describe('success', () => {
+			it('send message(use zero)', async () => {
+				const empty = ethers.Wallet.createRandom()
+				const payment = ethers.Wallet.createRandom()
+				const [deployer] = await ethers.getSigners()
+				await lzBase1.setTrustedRemote(1, deployer.address)
+				await mockEndPoint.mock.estimateFees
+					.withArgs(1, lzBase1.address, '0x', false, '0x')
+					.returns(100, 10)
+				await mockEndPoint.mock.send
+					.withArgs(
+						1,
+						deployer.address,
+						'0x',
+						empty.address,
+						payment.address,
+						'0x'
+					)
+					.returns()
+				await lzBase1.lzSend(1, '0x', empty.address, payment.address, '0x', {
+					value: ethers.utils.parseUnits('100', 'wei'),
+				})
+				expect(true).to.be.true
+			})
+		})
+		describe('fail', () => {
+			it('not trusted chain', async () => {
+				const empty = ethers.Wallet.createRandom()
+				const payment = ethers.Wallet.createRandom()
+				await expect(
+					lzBase1.lzSend(1, '0x', empty.address, payment.address, '0x')
+				).to.be.revertedWith(
+					'LzSend: destination chain is not a trusted source'
+				)
+			})
+			it('Not enough additional gas', async () => {
+				const empty = ethers.Wallet.createRandom()
+				const payment = ethers.Wallet.createRandom()
+				const [deployer] = await ethers.getSigners()
+				await lzBase1.setTrustedRemote(1, deployer.address)
+				await mockEndPoint.mock.estimateFees
+					.withArgs(1, lzBase1.address, '0x', false, '0x')
+					.returns(100, 10)
+				await expect(
+					lzBase1.lzSend(1, '0x', empty.address, payment.address, '0x', {
+						value: ethers.utils.parseUnits('1', 'wei'),
+					})
+				).to.be.revertedWith('Must send enough value to cover messageFee')
+			})
+		})
 	})
 
 	describe('getLzEndpoint', () => {
