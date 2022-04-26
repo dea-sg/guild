@@ -5,7 +5,7 @@ import { Signer } from 'ethers'
 import { deploy, deployProxy, makeSnapshot, resetChain } from './utils'
 import { Admin, GuildToken } from '../typechain-types'
 import { ethers, waffle } from 'hardhat'
-import { abi } from '../artifacts/contracts/interfaces/ILayerZeroEndpoint.sol/ILayerZeroEndpoint.json'
+import { abi } from '../artifacts/@dea-sg/layerzero/contracts/interfaces/ILayerZeroEndpoint.sol/ILayerZeroEndpoint.json'
 const { deployMockContract } = waffle
 
 use(solidity)

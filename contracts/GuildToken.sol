@@ -2,7 +2,7 @@
 pragma solidity =0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
-import "./layerzero/OmniERC20Upgradeable.sol";
+import "@dea-sg/layerzero/contracts/ERC20/OmniERC20Upgradeable.sol";
 import "./interfaces/IGuildToken.sol";
 
 contract GuildToken is OmniERC20Upgradeable, IGuildToken {

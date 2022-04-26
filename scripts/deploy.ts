@@ -40,7 +40,7 @@ main()
 		process.exit(1)
 	})
 
-// memo
+// Memo
 
 // [rinkeby]
 // GuildToken address: 0x871fAee277bC6D7A695566F6f60C22CD9d8714Ef
