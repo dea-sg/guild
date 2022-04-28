@@ -2,45 +2,52 @@ import { expect, use } from 'chai'
 import { ethers } from 'hardhat'
 import { constants } from 'ethers'
 import { solidity } from 'ethereum-waffle'
-import { deploy, deployProxy } from './utils'
-import { ExampleToken, Admin, UpgradeableProxy } from '../typechain'
+import { deploy, deployProxy, makeSnapshot, resetChain } from './utils'
+import { GuildToken, Admin, UpgradeableProxy } from '../typechain-types'
 
 use(solidity)
 
 describe('Admin', () => {
-	const init = async (): Promise<
-		[UpgradeableProxy, ExampleToken, ExampleToken, Admin]
-	> => {
-		const data = ethers.utils.arrayify('0x')
-		const exampleToken = await deploy<ExampleToken>('ExampleToken')
-		const admin = await deploy<Admin>('Admin')
-		const proxy = await deployProxy(exampleToken.address, admin.address, data)
-		const proxified = exampleToken.attach(proxy.address)
-		await proxified.initialize()
+	let proxy: UpgradeableProxy
+	let exampleToken: GuildToken
+	let proxified: GuildToken
+	let admin: Admin
+	let snapshot: string
 
-		return [proxy, exampleToken, proxified, admin]
-	}
+	before(async () => {
+		const data = ethers.utils.arrayify('0x')
+		exampleToken = await deploy<GuildToken>('GuildToken')
+		admin = await deploy<Admin>('Admin')
+		proxy = await deployProxy(exampleToken.address, admin.address, data)
+		proxified = exampleToken.attach(proxy.address)
+		const [, endPoint] = await ethers.getSigners()
+		await proxified.initialize('token', 'TOKEN', endPoint.address)
+	})
+	beforeEach(async () => {
+		snapshot = await makeSnapshot()
+	})
+	afterEach(async () => {
+		await resetChain(snapshot)
+	})
 
 	describe('upgrade', () => {
 		describe('success', () => {
 			it('upgrade logic contract', async () => {
-				const [proxy, impl, , proxyAdmin] = await init()
-				const impl1 = await proxyAdmin.getProxyImplementation(proxy.address)
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
-				await proxyAdmin.upgrade(proxy.address, nextImpl.address)
-				const impl2 = await proxyAdmin.getProxyImplementation(proxy.address)
+				const impl1 = await admin.getProxyImplementation(proxy.address)
+				const nextImpl = await deploy<GuildToken>('GuildToken')
+				await admin.upgrade(proxy.address, nextImpl.address)
+				const impl2 = await admin.getProxyImplementation(proxy.address)
 				expect(impl1).to.not.equal(impl2)
-				expect(impl1).to.equal(impl.address)
+				expect(impl1).to.equal(exampleToken.address)
 				expect(impl2).to.equal(nextImpl.address)
 			})
 		})
 		describe('fail', () => {
 			it('should fail to upgrade when the caller is not admin', async () => {
-				const [proxy, , , proxyAdmin] = await init()
-				const nextImpl = await deploy<ExampleToken>('ExampleToken')
+				const nextImpl = await deploy<GuildToken>('GuildToken')
 				const [, addr1] = await ethers.getSigners()
 				await expect(
-					proxyAdmin.connect(addr1).upgrade(proxy.address, nextImpl.address)
+					admin.connect(addr1).upgrade(proxy.address, nextImpl.address)
 				).to.be.revertedWith('Ownable: caller is not the owner')
 			})
 		})
@@ -48,19 +55,15 @@ describe('Admin', () => {
 	describe('getProxyImplementation', () => {
 		describe('success', () => {
 			it('get implementation address', async () => {
-				const [proxy, impl, , admin] = await init()
 				const implementation = await admin.getProxyImplementation(proxy.address)
-				expect(implementation).to.equal(impl.address)
+				expect(implementation).to.equal(exampleToken.address)
 			})
 		})
 		describe('fail', () => {
 			it('get implementation address', async () => {
-				const [proxy, , , proxyAdmin] = await init()
 				const [, addr1] = await ethers.getSigners()
 				await expect(
-					proxyAdmin
-						.connect(addr1)
-						.upgrade(proxy.address, constants.AddressZero)
+					admin.connect(addr1).upgrade(proxy.address, constants.AddressZero)
 				).to.be.revertedWith('Ownable: caller is not the owner')
 			})
 		})
@@ -68,26 +71,23 @@ describe('Admin', () => {
 	describe('getProxyAdmin', () => {
 		describe('success', () => {
 			it('get admin address', async () => {
-				const [proxy, , , proxyAdmin] = await init()
-				const impl = await proxyAdmin.getProxyAdmin(proxy.address)
-				expect(impl).to.equal(proxyAdmin.address)
+				const impl = await admin.getProxyAdmin(proxy.address)
+				expect(impl).to.equal(admin.address)
 			})
 			it('change admin address', async () => {
-				const [proxy, , , proxyAdmin] = await init()
-				const admin1 = await proxyAdmin.getProxyAdmin(proxy.address)
-				expect(admin1).to.equal(proxyAdmin.address)
+				const admin1 = await admin.getProxyAdmin(proxy.address)
+				expect(admin1).to.equal(admin.address)
 				const nextAdmin = await deploy<Admin>('Admin')
-				await proxyAdmin.changeProxyAdmin(proxy.address, nextAdmin.address)
+				await admin.changeProxyAdmin(proxy.address, nextAdmin.address)
 				const admin2 = await nextAdmin.getProxyAdmin(proxy.address)
 				expect(admin2).to.equal(nextAdmin.address)
 			})
 		})
 		describe('fail', () => {
 			it('get admin address', async () => {
-				const [proxy, , , proxyAdmin] = await init()
 				const [, addr1] = await ethers.getSigners()
 				await expect(
-					proxyAdmin
+					admin
 						.connect(addr1)
 						.changeProxyAdmin(proxy.address, constants.AddressZero)
 				).to.be.revertedWith('Ownable: caller is not the owner')

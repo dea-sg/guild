@@ -1,4 +1,18 @@
 {
 	"extends": ["config:base"],
-	"automerge": true
+	"automerge": true,
+	"packageRules": [
+		{
+			"packageNames": ["@openzeppelin/contracts"],
+			"allowedVersions": "4.5.0"
+		},
+		{
+			"packageNames": ["@openzeppelin/contracts-upgradeable"],
+			"allowedVersions": "4.5.2"
+		},
+		{
+			"packageNames": ["@dea-sg/layerzero"],
+			"allowedVersions": "1.1.0"
+		}
+	]
 }

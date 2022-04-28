@@ -2,7 +2,7 @@
 import '@typechain/hardhat'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
-import { HardhatUserConfig } from 'hardhat/config'
+import '@nomiclabs/hardhat-etherscan'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
@@ -10,7 +10,7 @@ dotenv.config()
 const mnemnoc =
 	typeof process.env.MNEMONIC === 'undefined' ? '' : process.env.MNEMONIC
 
-const config: HardhatUserConfig = {
+const config = {
 	solidity: {
 		version: '0.8.9',
 		settings: {
@@ -21,36 +21,25 @@ const config: HardhatUserConfig = {
 		},
 	},
 	networks: {
-		ropsten: {
-			url: `https://ropsten.infura.io/v3/${process.env.INFURA_KEY!}`,
+		rinkeby: {
+			url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ARCHEMY_KEY!}`,
 			gas: 4712388,
 			accounts: {
 				mnemonic: mnemnoc,
 			},
 		},
-		arbitrumOne: {
-			url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_KEY!}`,
-			accounts: {
-				mnemonic: mnemnoc,
-			},
-		},
-		arbitrumRinkeby: {
-			url: `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_KEY!}`,
-			accounts: {
-				mnemonic: mnemnoc,
-			},
-		},
-		polygonMainnet: {
-			url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_KEY!}`,
-			accounts: {
-				mnemonic: mnemnoc,
-			},
-		},
 		polygonMumbai: {
-			url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_KEY!}`,
+			url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env
+				.ARCHEMY_KEY!}`,
 			accounts: {
 				mnemonic: mnemnoc,
 			},
+		},
+	},
+	etherscan: {
+		apiKey: {
+			rinkeby: process.env.ETHERSCAN_API_KEY!,
+			polygonMumbai: process.env.POLYGONSCAN_API_KEY!,
 		},
 	},
 }
