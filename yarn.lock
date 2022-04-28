@@ -35,12 +35,12 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@dea-sg/layerzero@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@dea-sg/layerzero/-/layerzero-1.0.3.tgz#b942a36c98c189b124a57c50ceca5e1cd5c84d46"
-  integrity sha512-bU2geOB6OsiN2/XOid6tdzzAjH91+v23AmvDMnNJARxjrVPYbEVZGFKlh67D6klTChbJXDrEDxx1Y3MoUGFbzg==
+"@dea-sg/layerzero@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@dea-sg/layerzero/-/layerzero-1.1.1.tgz#04786a58f9f68c76ef0e2a79555c7f78ac160829"
+  integrity sha512-EZ0kZDn5sdJC3bG0cO0qhzRr6tS377iUHrehfbUQavUZIH0VTXGOTIPR2OpsF01x7Pueq0jIuodhYBWZyCrXFw==
   dependencies:
-    "@openzeppelin/contracts" "4.5.0"
+    "@openzeppelin/contracts" "4.6.0"
     "@openzeppelin/contracts-upgradeable" "4.5.2"
 
 "@ensdomains/ens@^0.4.4":
