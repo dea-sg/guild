@@ -22,7 +22,7 @@ const config = {
 	},
 	networks: {
 		rinkeby: {
-			url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ARCHEMY_KEY!}`,
+			url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.RINKEBY_ARCHEMY_KEY!}`,
 			gas: 4712388,
 			accounts: {
 				mnemonic: mnemnoc,
@@ -30,7 +30,7 @@ const config = {
 		},
 		polygonMumbai: {
 			url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env
-				.ARCHEMY_KEY!}`,
+				.MUMBAI_ARCHEMY_KEY!}`,
 			accounts: {
 				mnemonic: mnemnoc,
 			},
