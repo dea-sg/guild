@@ -22,7 +22,8 @@ const config = {
 	},
 	networks: {
 		rinkeby: {
-			url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.RINKEBY_ARCHEMY_KEY!}`,
+			url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env
+				.RINKEBY_ARCHEMY_KEY!}`,
 			gas: 4712388,
 			accounts: {
 				mnemonic: mnemnoc,
