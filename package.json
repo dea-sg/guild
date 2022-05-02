@@ -51,7 +51,7 @@
 		"typescript": "4.6.4"
 	},
 	"dependencies": {
-		"@dea-sg/layerzero": "1.1.2",
+		"@dea-sg/layerzero": "1.1.3",
 		"@openzeppelin/contracts": "4.6.0",
 		"@openzeppelin/contracts-upgradeable": "4.5.2"
 	}
