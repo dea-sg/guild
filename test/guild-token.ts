@@ -43,14 +43,14 @@ describe('GuildToken', () => {
 	})
 
 	describe('name', () => {
-		it('name is ', async () => {
+		it('name is token', async () => {
 			const tmp = await guildToken.name()
 			expect(tmp).to.equal('token')
 		})
 	})
 
 	describe('symbol', () => {
-		it('name is JPYW', async () => {
+		it('symbol is TOKEN', async () => {
 			const tmp = await guildToken.symbol()
 			expect(tmp).to.equal('TOKEN')
 		})
