@@ -22,13 +22,13 @@ describe('GuildToken', () => {
 	before(async () => {
 		;[deployer, user, user2] = await ethers.getSigners()
 		const admin = await deploy<Admin>('Admin')
-		const tpkenInstance = await deploy<GuildToken>('GuildToken')
+		const tokenInstance = await deploy<GuildToken>('GuildToken')
 		const proxy = await deployProxy(
-			tpkenInstance.address,
+			tokenInstance.address,
 			admin.address,
 			ethers.utils.arrayify('0x')
 		)
-		guildToken = tpkenInstance.attach(proxy.address)
+		guildToken = tokenInstance.attach(proxy.address)
 		guildTokenUser = guildToken.connect(user)
 		guildTokenUser2 = guildToken.connect(user2)
 		const mockEndPoint = await deployMockContract(deployer, abi)
