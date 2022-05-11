@@ -56,6 +56,16 @@ describe('GuildToken', () => {
 		})
 	})
 
+	describe('initialize', () => {
+		describe('fail', () => {
+			it('Cannot be executed more than once', async () => {
+				await expect(
+					guildToken.initialize('token', 'TOKEN', ethers.constants.AddressZero)
+				).to.be.revertedWith('Initializable: contract is already initialized')
+			})
+		})
+	})
+
 	describe('default role', () => {
 		describe('deployer', () => {
 			it('has admin role', async () => {
