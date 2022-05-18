@@ -2,8 +2,8 @@
 import { expect, use } from 'chai'
 import { solidity } from 'ethereum-waffle'
 import { Signer } from 'ethers'
-import { deploy, deployProxy, makeSnapshot, resetChain } from './utils'
-import { Admin, GuildToken } from '../typechain-types'
+import { makeSnapshot, resetChain } from './utils'
+import { GuildToken } from '../typechain-types'
 import { ethers, waffle } from 'hardhat'
 import { abi } from '../artifacts/@dea-sg/layerzero/contracts/interfaces/ILayerZeroEndpoint.sol/ILayerZeroEndpoint.json'
 const { deployMockContract } = waffle
@@ -21,16 +21,12 @@ describe('GuildToken', () => {
 
 	before(async () => {
 		;[deployer, user, user2] = await ethers.getSigners()
-		const admin = await deploy<Admin>('Admin')
-		const tokenInstance = await deploy<GuildToken>('GuildToken')
-		const proxy = await deployProxy(
-			tokenInstance.address,
-			admin.address,
-			ethers.utils.arrayify('0x')
-		)
-		guildToken = tokenInstance.attach(proxy.address)
-		guildTokenUser = guildToken.connect(user)
-		guildTokenUser2 = guildToken.connect(user2)
+		const factory = await ethers.getContractFactory('GuildToken')
+		const contract = (await factory.deploy()) as GuildToken
+		await contract.deployed()
+		guildToken = contract
+		guildTokenUser = contract.connect(user)
+		guildTokenUser2 = contract.connect(user2)
 		const mockEndPoint = await deployMockContract(deployer, abi)
 
 		await guildToken.initialize('token', 'TOKEN', mockEndPoint.address)

@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: MPL-2.0
 pragma solidity =0.8.9;
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 import "@dea-sg/layerzero/contracts/ERC20/OmniERC20Upgradeable.sol";
 import "./interfaces/IGuildToken.sol";
 
-contract GuildToken is OmniERC20Upgradeable, IGuildToken {
+contract GuildToken is
+	OwnableUpgradeable,
+	UUPSUpgradeable,
+	OmniERC20Upgradeable,
+	IGuildToken
+{
 	bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 	bytes32 public constant BLOCK_LIST_ROLE = keccak256("BLOCK_LIST_ROLE");
@@ -18,6 +25,8 @@ contract GuildToken is OmniERC20Upgradeable, IGuildToken {
 		string memory _symbol,
 		address _endpoint
 	) external initializer {
+		__Ownable_init();
+		__UUPSUpgradeable_init();
 		__OmniERC20_init(_name, _symbol, _endpoint);
 		_setupRole(BURNER_ROLE, _msgSender());
 		_setupRole(MINTER_ROLE, _msgSender());
@@ -68,4 +77,6 @@ contract GuildToken is OmniERC20Upgradeable, IGuildToken {
 		);
 		require(blockList.contains(_to) == false, "illegal access(block list)");
 	}
+
+	function _authorizeUpgrade(address) internal override onlyOwner {}
 }
