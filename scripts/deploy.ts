@@ -31,3 +31,14 @@ main()
 // Memo
 
 // excute setTrustedRemote
+
+// rinkeby
+// npx hardhat run dist/scripts/deploy.js --network rinkeby
+// proxy was deployed to: 0xcCb3F56AA3e998ee6A662EA822DCd3238C002933
+// logic was deployed to: 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
+// npx hardhat verify --contract contracts/GuildToken.sol:GuildToken --network rinkeby 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
+
+// mumbai
+// proxy was deployed to: 0x1f40cC97b4d5163Eef61466859ce531C609Cc492
+// logic was deployed to: 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
+// npx hardhat verify --contract contracts/GuildToken.sol:GuildToken --network polygonMumbai 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
