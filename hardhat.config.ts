@@ -9,7 +9,9 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const privateKey =
-	typeof process.env.PRIVATE_KEY === 'undefined' ? '' : process.env.PRIVATE_KEY
+	typeof process.env.PRIVATE_KEY === 'undefined'
+		? '0000000000000000000000000000000000000000000000000000000000000000'
+		: process.env.PRIVATE_KEY
 
 const config = {
 	solidity: {
