@@ -1,36 +1,25 @@
-import { ethers } from 'hardhat'
-import {
-	Admin__factory,
-	UpgradeableProxy__factory,
-	GuildToken__factory,
-} from '../typechain-types'
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ethers, upgrades } from 'hardhat'
 
 async function main() {
-	const guildTokenFactory = (await ethers.getContractFactory(
-		'GuildToken'
-	)) as GuildToken__factory
-	const guildToken = await guildTokenFactory.deploy()
-	await guildToken.deployed()
+	const name = typeof process.env.NAME === 'undefined' ? '' : process.env.NAME
+	const symbol =
+		typeof process.env.SYMBOL === 'undefined' ? '' : process.env.SYMBOL
+	const endpoint =
+		typeof process.env.END_POINT === 'undefined' ? '' : process.env.END_POINT
 
-	const adminFactory = (await ethers.getContractFactory(
-		'Admin'
-	)) as Admin__factory
-	const admin = await adminFactory.deploy()
-	await admin.deployed()
-
-	const upgradeableProxyFactory = (await ethers.getContractFactory(
-		'UpgradeableProxy'
-	)) as UpgradeableProxy__factory
-	const upgradeableProxy = await upgradeableProxyFactory.deploy(
-		guildToken.address,
-		admin.address,
-		ethers.utils.arrayify('0x')
+	const tokenFactory = await ethers.getContractFactory('GuildToken')
+	const token = await upgrades.deployProxy(
+		tokenFactory,
+		[name, symbol, endpoint],
+		{ kind: 'uups' }
 	)
-	await upgradeableProxy.deployed()
-
-	console.log('GuildToken address:', guildToken.address)
-	console.log('Admin address:', admin.address)
-	console.log('UpgradeableProxy address:', upgradeableProxy.address)
+	await token.deployed()
+	console.log('proxy was deployed to:', token.address)
+	const filter = token.filters.Upgraded()
+	const events = await token.queryFilter(filter)
+	console.log('logic was deployed to:', events[0].args!.implementation)
 }
 
 main()
@@ -39,27 +28,17 @@ main()
 		console.error(error)
 		process.exit(1)
 	})
-
 // Memo
 
-// [rinkeby]
-// GuildToken address: 0x871fAee277bC6D7A695566F6f60C22CD9d8714Ef
-// Admin address: 0x5312f4968901Ec9d4fc43d2b0e437041614B14A2
-// UpgradeableProxy address: 0x50Ea71c70D2399037A1bAeeC15Afbfb3417aFeff
+// excute setTrustedRemote
 
+// rinkeby
 // npx hardhat run dist/scripts/deploy.js --network rinkeby
+// proxy was deployed to: 0xcCb3F56AA3e998ee6A662EA822DCd3238C002933
+// logic was deployed to: 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
+// npx hardhat verify --contract contracts/GuildToken.sol:GuildToken --network rinkeby 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
 
-// npx hardhat verify --network rinkeby 0x871fAee277bC6D7A695566F6f60C22CD9d8714Ef
-// npx hardhat verify --contract contracts/proxy/Admin.sol:Admin --network rinkeby 0x5312f4968901Ec9d4fc43d2b0e437041614B14A2
-// npx hardhat verify --contract contracts/proxy/UpgradeableProxy.sol:UpgradeableProxy --network rinkeby --constructor-args scripts/arg.js 0x50Ea71c70D2399037A1bAeeC15Afbfb3417aFeff
-
-// [polygon mumbai]
-// GuildToken address: 0xF1BC8219d218bEF851E4a99df85C40E533ee97C1
-// Admin address: 0xaF526119DC779a250aa2Bfa184B5dB383ac0bAD7
-// UpgradeableProxy address: 0x864009445089A4144DB6dDf947aF25B7Ae3D90d1
-
-// npx hardhat verify --network polygonMumbai 0xF1BC8219d218bEF851E4a99df85C40E533ee97C1
-// npx hardhat verify --contract contracts/proxy/Admin.sol:Admin --network polygonMumbai 0xaF526119DC779a250aa2Bfa184B5dB383ac0bAD7
-// npx hardhat verify --contract contracts/proxy/UpgradeableProxy.sol:UpgradeableProxy --network polygonMumbai --constructor-args scripts/arg.js 0x864009445089A4144DB6dDf947aF25B7Ae3D90d1
-
-// initialize & setTrustedRemote
+// mumbai
+// proxy was deployed to: 0x1f40cC97b4d5163Eef61466859ce531C609Cc492
+// logic was deployed to: 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
+// npx hardhat verify --contract contracts/GuildToken.sol:GuildToken --network polygonMumbai 0xF688573D7B154DEc538234CBd2D8e3f0fdadeAd6
